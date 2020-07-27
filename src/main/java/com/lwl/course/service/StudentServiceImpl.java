@@ -1,20 +1,33 @@
 package com.lwl.course.service;
 
-import java.util.ArrayList;
+
+import java.io.File;
 import java.util.List;
+import java.util.Scanner;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
+
+import com.lwl.course.domain.Status;
 import com.lwl.course.domain.Student;
 import com.lwl.course.dto.PlacementCountDTO;
 import com.lwl.course.dto.StudentDTO;
 import com.lwl.course.util.CsvReaderUtil;
+
 
 public class StudentServiceImpl implements StudentService {
 
 	private List<Student> studentList;
 
 	private String fileName;
+	
+	private static Scanner x;
+	String filepath ="coursedata.csv";
+	String search ="Name,Batch,Qualification,Score";
+
+	private PlacementCountDTO placementCountDTO;
 
 	public StudentServiceImpl(String fileName) {
 		studentList = CsvReaderUtil.getStudents(fileName);
@@ -30,24 +43,26 @@ public class StudentServiceImpl implements StudentService {
 	public int getCountBy(Predicate<Student> predicate) {
 		return (int) studentList.stream().filter(predicate).count();
 	}
+	
 
 	@Override
 	public PlacementCountDTO getPlacedAndNotPlacedCount() {
-		// TODO Auto-generated method stub
-		return null;
+		Predicate<Student> placed = (p) -> p.getPlacementStatus().equals(Status.Y);
+		Predicate<Student> notplaced = (p) -> p.getPlacementStatus().equals(Status.N);
+		PlacementCountDTO placementCountDTO = new PlacementCountDTO();
+		placementCountDTO.setPlacedCount(getCountBy(placed));
+		placementCountDTO.setNotPlacedCount(getCountBy(notplaced));
+		return placementCountDTO;
+
+
 	}
 
 	@Override
 	public List<Student> search(String str) {
-		// TODO Auto-generated method stub
-		return null;
+		return studentList.stream().filter(e->e.getName().toLowerCase().contains(str.toLowerCase())).collect(Collectors.toList());
+
 	}
 
-	@Override
-	public float successRateOfGivenBatch(String batchName) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public List<Student> maxScoreStudents() {
@@ -64,13 +79,39 @@ public class StudentServiceImpl implements StudentService {
 		return studentList.stream().map(Student::getName).collect(Collectors.toList());
 	}
 
+
 	@Override
+	
+		
 	public List<StudentDTO> getAllStudentDetails() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		 
+		return studentList.stream().map(s -> new StudentDTO(s.getName(),
+				s.getQualification(),s.getScore())).collect(Collectors.toList());
+		
+		}
+ 
+		
+
+
+	
 
 	private double getMaxScore(List<Student> studentList) {
 		return studentList.stream().mapToDouble(s -> s.getScore()).boxed().max(Double::compareTo).get();
 	}
+
+	@Override
+	public float successRateOfGivenBatch(String batchName) {
+		
+		List<Student> Batch = studentList.stream().filter(b->b.getBatch().
+				equalsIgnoreCase(batchName)).collect(Collectors.toList());
+		
+		int success = (int) Batch.stream().filter(s->s.getCourseStatus().equals(Status.Y)).count();
+		
+		int total = studentList.size();
+		
+		return (float)(success*100/total);
+	}
+	
+	
+	
 }

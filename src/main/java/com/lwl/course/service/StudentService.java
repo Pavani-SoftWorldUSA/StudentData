@@ -12,7 +12,7 @@ public interface StudentService {
 	List<Student> getStudentByQualification(String qualification);
 
 	int getCountBy(Predicate<Student> predicate);
-
+	
 	PlacementCountDTO getPlacedAndNotPlacedCount();
 
 	List<Student> search(String str);
@@ -24,5 +24,6 @@ public interface StudentService {
 	List<String> getAllNames();
 
 	List<StudentDTO> getAllStudentDetails();
+
 
 }

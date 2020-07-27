@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lwl.course.domain.Completed;
 import com.lwl.course.domain.Status;
 import com.lwl.course.domain.Student;
+import com.lwl.course.dto.StudentDTO;
 
 public final class CsvReaderUtil {
 
@@ -21,6 +23,10 @@ public final class CsvReaderUtil {
 
 		List<String> lines;
 		List<Student> studentList = new ArrayList<>();
+		
+		List<StudentDTO> list = new ArrayList<StudentDTO>();
+		
+		
 		try {
 			lines = Files.readAllLines(Paths.get(fileName));
 			studentList = lines.stream().skip(1).map(CsvReaderUtil::convert).collect(Collectors.toList());
